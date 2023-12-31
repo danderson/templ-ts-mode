@@ -1,0 +1,69 @@
+package main
+
+import "path"
+import "github.com/gosimple/slug"
+
+const duck = false
+
+const (
+  a = iota
+  b
+  c
+)
+
+// Can one tell apart function comments?
+func test(foo string, bar int) bool {
+  print("foo\n")
+  return 42
+}
+
+greop={}ewfwefe
+
+type Blah struct {
+  Foo int
+}
+
+func (b *Blah) Do() bool {
+  test("foo", 42)
+  foo, bar := bar
+  return true
+}
+
+func other() {
+  Blah.Do()
+  Blah.foo.Do(honk)
+  x = func(foo int, bar string) bool { return 5 }
+}
+
+// The header component
+templ headerComponent(title string) {
+	<head><title>{ title }</title><fuck /></head>
+}
+
+templ contentComponent(title string, body templ.Component) {
+	<body>
+		<h1>{ title }</h1>
+		<div class="content">
+			{! body }
+		</div>
+	</body>
+}
+
+templ contentPage(title string, body templ.Component) {
+	<html>
+		@headerComponent(title)
+		@contentComponent(title, body)
+	</html>
+}
+
+templ indexPage(posts []Post) {
+	<html>
+		@headerComponent("My Blog")
+		<body>
+			<h1>My Blog</h1>
+			for _, post := range posts {
+				<div><a href={ templ.SafeURL(path.Join(post.Date.Format("2006/01/02"), slug.Make(post.Title), "/")) }>{ post.Title }</a></div>
+			}
+		</body>
+	</html>
+}
