@@ -13,11 +13,15 @@ const (
 
 // Can one tell apart function comments?
 func test(foo string, bar int) bool {
-  print("foo\n")
+  print("foo\nbar\n")
   return 42
 }
 
-greop={}ewfwefe
+var greop={}ewfwefe
+
+var (
+foo = bar
+)
 
 type Blah struct {
   Foo int
@@ -40,6 +44,11 @@ templ headerComponent(title string) {
 	<head><title>{ title }</title><fuck /></head>
 }
 
+// honk shoo
+
+func what(is string, this bool, magic int) {
+}
+
 templ contentComponent(title string, body templ.Component) {
 	<body>
 		<h1>{ title }</h1>
@@ -55,6 +64,10 @@ templ contentPage(title string, body templ.Component) {
 		@contentComponent(title, body)
 	</html>
 }
+
+css blah() {}
+
+script foo() {}
 
 templ indexPage(posts []Post) {
 	<html>
