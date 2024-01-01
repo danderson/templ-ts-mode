@@ -3,42 +3,140 @@
 (require 'go-ts-mode)
 
 (defvar templ-ts--go-font-lock-rules
-  `(
-    ))
+  (list
+
+   :language 'templ
+   :feature 'bracket
+   '((["(" ")" "[" "]" "{" "}"]) @font-lock-bracket-face)
+
+   :language 'templ
+   :feature 'comment
+   '((comment) @font-lock-comment-face)
+
+   :language 'templ
+   :feature 'constant
+   `([(false) (nil) (true)] @font-lock-constant-face
+     ,@(when (go-ts-mode--iota-query-supported-p)
+         '((iota) @font-lock-constant-face))
+     (const_declaration
+      (const_spec name: (identifier) @font-lock-constant-face)))
+
+   :language 'templ
+   :feature 'delimiter
+   '((["," "." ";" ":"]) @font-lock-delimiter-face)
+
+   :language 'templ
+   :feature 'definition
+   '((function_declaration
+      name: (identifier) @font-lock-function-name-face)
+     (method_declaration
+      name: (field_identifier) @font-lock-function-name-face)
+     (method_spec
+      name: (field_identifier) @font-lock-function-name-face)
+     (field_declaration
+      name: (field_identifier) @font-lock-property-name-face)
+     (parameter_declaration
+      name: (identifier) @font-lock-variable-name-face)
+     (short_var_declaration
+      left: (expression_list
+             (identifier) @font-lock-variable-name-face
+             ("," (identifier) @font-lock-variable-name-face)*))
+     (var_spec name: (identifier) @font-lock-variable-name-face
+               ("," name: (identifier) @font-lock-variable-name-face)*))
+
+   :language 'templ
+   :feature 'function
+   '((call_expression
+      function: (identifier) @font-lock-function-call-face)
+     (call_expression
+      function: (selector_expression
+                 field: (field_identifier) @font-lock-function-call-face)))
+
+   :language 'templ
+   :feature 'keyword
+   `([,@go-ts-mode--keywords] @font-lock-keyword-face)
+
+   :language 'templ
+   :feature 'label
+   '((label_name) @font-lock-constant-face)
+
+   :language 'templ
+   :feature 'number
+   '([(float_literal)
+      (imaginary_literal)
+      (int_literal)] @font-lock-number-face)
+
+   :language 'templ
+   :feature 'string
+   '([(interpreted_string_literal)
+      (raw_string_literal)
+      (rune_literal)] @font-lock-string-face)
+
+   :language 'templ
+   :feature 'type
+   '([(package_identifier) (type_identifier)] @font-lock-type-face)
+
+   :language 'templ
+   :feature 'property
+   '((selector_expression field: (field_identifier) @font-lock-property-use-face)
+     (keyed_element (_ (identifier) @font-lock-property-use-face)))
+
+   :language 'templ
+   :feature 'variable
+   '((identifier) @font-lock-variable-use-face)
+
+   :language 'templ
+   :feature 'escape-sequence
+   :override t
+   '((escape_sequence) @font-lock-escape-face)
+
+   :language 'templ
+   :feature 'error
+   :override t
+   '((ERROR) @font-lock-warning-face)))
 
 (defvar templ-ts--templ-font-lock-rules
-  `(
+  `(:language templ
+    :feature keyword
+    (["templ" "css" "script"] @font-lock-keyword-face)
+
+    :language templ
+    :feature definition
+    ((component_declaration name: (component_identifier) @font-lock-function-name-face)
+     (css_declaration name: (css_identifier) @font-lock-function-name-face)
+     (script_declaration name: (script_identifier) @font-lock-function-name-face))
+
+    :language templ
+    :feature delimiter
+    (["<!" "<" ">" "/>" "</"] @font-lock-bracket-face)
+
+    :language templ
+    :feature attribute
+    ((attribute name: (attribute_name) @font-lock-constant-face
+                "=" @font-lock-bracket-face
+                value: (quoted_attribute_value) @font-lock-string-face)
+     (attribute name: (attribute_name) @font-lock-constant-face
+                "=" @font-lock-bracket-face
+                value: (attribute_value) @font-lock-constant-face))
+
+    :language templ
+    :feature tag
+    ((tag_start name: (element_identifier) @font-lock-function-call-face)
+     (tag_end name: (element_identifier) @font-lock-function-call-face)
+     (self_closing_tag name: (element_identifier) @font-lock-function-call-face))
+
+    :language templ
+    :feature function
+    ((component_import "@" @font-lock-bracket-face
+                       name: (component_identifier) @font-lock-function-call-face))
     ))
 
-(defvar templ-ts-range-rules
-  '(:embed go
-    :host templ
-    ((source_file [(package_clause) (import_declaration) (const_declaration) (function_declaration) (type_declaration)]))
-    ; ((source_file [(package_clause) (import_declaration) (const_declaration) (function_declaration) (type_declaration) (comment) (method_declaration) (var_declaration)] @h))
-    ))
+(defvar templ-ts--indent-rules
+  `((templ
+     ,@(cdar go-ts-mode--indent-rules)
+     ((parent-is "css_declaration") parent-bol 2)
 
-(defun templ-ts--treesit-node-to-range (node)
-  (cons (treesit-node-start node)
-        (treesit-node-end node)))
-
-(defun templ-ts--locate-non-go-bits ()
-  (let* ((query '((source_file [(component_declaration)
-                                (css_declaration)
-                                (script_declaration)] @templ)))
-         (nodes (treesit-query-capture 'templ query nil nil t))
-         (ranges (mapcar #'templ-ts--treesit-node-to-range nodes)))
-    ranges))
-
-(defun templ-ts--locate-go-bits ()
-  (let* ((all (templ-ts--treesit-node-to-range (treesit-buffer-root-node 'templ)))
-         (templ-bits (templ-ts--locate-non-go-bits))
-         (diff (range-difference all templ-bits))
-         (remove-end (lambda (range) (or (listp range)
-                                         (not (equal range (buffer-end 1))))))
-         (canonicalize (lambda (range) (if (listp range)
-                                           range
-                                         (cons range (+ 1 range))))))
-    (seq-map canonicalize (seq-filter remove-end diff))))
+     )))
 
 (defun templ-ts-setup ()
   (interactive)
@@ -49,16 +147,11 @@
                 bracket delimiter function operator property variable)))
 
   (setq-local treesit-font-lock-settings
-              (append
-               go-ts-mode--font-lock-settings
-               (apply #'treesit-font-lock-rules templ-ts-font-lock-rules)))
+              (apply #'treesit-font-lock-rules
+                     (append templ-ts--go-font-lock-rules
+                             templ-ts--templ-font-lock-rules)))
 
-
-  (setq-local treesit-range-settings
-              (treesit-range-rules
-               (lambda (start end)
-                 (treesit-parser-set-included-ranges (treesit-parser-create 'go)
-                                                     (templ-ts--locate-go-bits)))))
+  (setq-local treesit-simple-indent-rules templ-ts--indent-rules)
 
   (treesit-major-mode-setup))
 
@@ -67,12 +160,6 @@
   (when (treesit-ready-p 'templ)
     (treesit-parser-create 'templ)
     (templ-ts-setup)))
-
-(defun combobulate-templ-setup ())
-(defconst combobulate-rules-templ '())
-(defconst combobulate-rules-templ-inverted '())
-
-(add-to-list 'combobulate-setup-functions-alist '(templ . combobulate-templ-setup))
 
 (defun ultravomit ()
   (interactive)
