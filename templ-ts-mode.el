@@ -257,12 +257,19 @@
 
   (treesit-major-mode-setup))
 
+(defun templ-ts--all-parsers-available ()
+  "Report whether the parsers templ needs are all available."
+  (and (treesit-ready-p 'templ)
+       (treesit-ready-p 'javascript)))
+
 ;;;###autoload
 (define-derived-mode templ-ts-mode prog-mode "Templ"
   "Major mode for editing Templ files."
-  (when (and (treesit-ready-p 'templ)
-             (treesit-ready-p 'javascript))
+  (when (templ-ts--all-parsers-available)
     (templ-ts--setup)))
+
+(if (templ-ts--all-parsers-available)
+    (add-to-list 'auto-mode-alist '("\\.templ\\'" . templ-ts-mode)))
 
 ;; Debugging stuff
 
