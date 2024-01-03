@@ -257,6 +257,7 @@
 
   (treesit-major-mode-setup))
 
+;;;###autoload
 (define-derived-mode templ-ts-mode prog-mode "Templ"
   "Major mode for editing Templ files."
   (when (and (treesit-ready-p 'templ)
