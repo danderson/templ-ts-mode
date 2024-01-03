@@ -26,6 +26,10 @@ configuration](https://github.com/danderson/homelab/blob/main/home/emacs2.nix)
 for an example of how to add the parser and major mode to your
 installation.
 
+templ-ts-mode is [pending addition to
+MELPA](https://github.com/danderson/templ-ts-mode/issues/1), in the
+meantime you need to install the mode by hand.
+
 ## Usage
 
 The package automatically sets `templ-ts-mode` for `.templ`
