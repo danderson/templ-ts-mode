@@ -1,6 +1,8 @@
 ;; templ-mode.el --- major mode for editing templ source in Emacs
 
 (require 'go-ts-mode)
+(require 'js)
+(require 'css-mode)
 
 (defvar templ-ts--go-font-lock-rules
   (list
@@ -129,136 +131,78 @@
     :feature function
     ((component_import "@" @font-lock-bracket-face
                        name: (component_identifier) @font-lock-function-call-face))
+
+    :language templ
+    :feature css-selector
+    ((css_property_name) @css-selector)
     ))
 
 (defvar templ-ts--indent-rules
-  `((templ
+  `(
+    ,(car js--treesit-indent-rules)
+    (templ
      ,@(cdar go-ts-mode--indent-rules)
-     ((parent-is "css_declaration") parent-bol 2)
 
-     )))
+     ((parent-is "css_declaration") parent-bol go-ts-mode-indent-offset)
+     ((parent-is "component_declaration") parent-bol go-ts-mode-indent-offset)
+     ;; No script or component indent rules for the first body line,
+     ;; they get handled by Go's 'block' rule. Subsequent lines are
+     ;; handled by the js language rules for script blocks, and by
+     ;; element indent logic below for components.
 
-(defun templ-ts--notch-range (range notch)
-  "Return the portions of RANGE on either side of NOTCH.
-RANGE, NOTCH are both (start . end) cons pairs.  The return value
-is a list of 2 ranges in the same format, giving the portions of
-RANGE that fall before and after NOTCH.  Both values can be nil
-if NOTCH overlaps one or both ends of RANGE."
-  (let* ((range-start (car range))
-         (range-end (cdr range))
-         (notch-start (min (max (car notch) range-start)
-                           range-end))
-         (notch-end (max (min (cdr notch) range-end)
-                         range-start))
-         (rem-start (if (equal range-start notch-start)
-                        nil
-                      (cons range-start notch-start)))
-         (rem-end (if (equal range-end notch-end)
-                      nil
-                    (cons notch-end range-end))))
-    (list rem-start rem-end)))
+     ;; Identation of HTML elements and attributes within components.
+     ((node-is "/>") parent-bol 1)
+     ((node-is "tag_end") parent-bol 0)
+     ((node-is "attribute") prev-sibling 0)
+     ((parent-is "element") parent-bol go-ts-mode-indent-offset)
+     ((parent-is "tag_start") parent-bol go-ts-mode-indent-offset)
+     ((parent-is "self_closing_tag") parent-bol go-ts-mode-indent-offset))))
 
-(ert-deftest templ-ts--test-notch-range ()
-  "Tests the range notching function."
-  (should (equal (templ-ts--notch-range '(100 . 200) '(0 . 50))
-                 '(nil (100 . 200))))
-  (should (equal (templ-ts--notch-range '(100 . 200) '(0 . 300))
-                 '(nil nil)))
-  (should (equal (templ-ts--notch-range '(100 . 200) '(50 . 150))
-                 '(nil (150 . 200))))
-  (should (equal (templ-ts--notch-range '(100 . 200) '(150 . 250))
-                 '((100 . 150) nil)))
-  (should (equal (templ-ts--notch-range '(100 . 200) '(250 . 300))
-                 '((100 . 200) nil)))
-  (should (equal (templ-ts--notch-range '(100 . 200) '(120 . 180))
-                 '((100 . 120) (180 . 200))))
-  )
-
-(defun templ-ts--accumulate-notch (acc notch)
-  "Notch the first element of ACC with NOTCH.
-Places the results of the notching back onto the front of ACC.
-Intended for use in a seq-reduction."
-  (let* ((range (car acc))
-         (rest (cdr acc))
-         (split (templ-ts--notch-range range notch))
-         (clean (nreverse (seq-filter #'identity split))))
-    (append clean rest)))
-
-(defun templ-ts--invert-source-ranges (ranges start end)
+(defun templ-ts--treesit-language-at-point (point)
   ""
-  ; Empirically, treesit-query-range returns ranges in order of
-  ; appearance in the buffer. However, the documentation doesn't
-  ; guarantee that behavior. Defensively sort, just in case.
-  (sort ranges (lambda (r1 r2) (< (car r1) (car r2))))
-  (let* ((init-range (cons start end))
-         (reduction (seq-reduce #'templ-ts--accumulate-notch
-                                ranges
-                                (list init-range))))
-    (nreverse reduction)))
-
-(defun templ-ts--range-is-whitespace (range)
-  ""
-  (string-blank-p (buffer-substring-no-properties (car range) (cdr range))))
-
-(defun templ-ts--range-length (range)
-  ""
-  (- (cdr range) (car range)))
-
-(defun templ-ts--remove-whitespace (ranges)
-  ""
-  (seq-filter (lambda (range)
-                (or (> (templ-ts--range-length range) 10)
-                    (not (templ-ts--range-is-whitespace range))))
-              ranges))
-
-(defun templ-ts--top-level-templ-ranges (start end)
-  ""
-  (let ((query '((source_file [(css_declaration)
-                                (script_declaration)
-                                (component_declaration)] @templ))))
-    (treesit-query-range 'templ query start end)))
-
-(defun templ-ts--top-level-go-ranges (start end)
-  ""
-  (interactive)
-  (templ-ts--remove-whitespace
-   (templ-ts--invert-source-ranges (templ-ts--top-level-templ-ranges start end)
-                                   start end)))
-
-(defun templ-ts--set-go-ranges (start end)
-  ""
-  (let ((ranges (templ-ts--top-level-go-ranges (point-min) (point-max)))
-         (parser (treesit-parser-create 'go)))
-    (treesit-parser-set-included-ranges parser ranges)))
-
-(defvar templ-ts--range-rules
-  (list
-
-   #'templ-ts--set-go-ranges
-
-   ;; :embed 'go
-   ;; :host 'templ
-   ;; '((element (expression "{" (_) @capture "}")))
-
-   ))
+  (let* ((js (treesit-parser-create 'javascript))
+         (js-range (treesit-parser-range-on js point)))
+    (cond
+     ((null js-range)
+      'templ)
+     ((eq point (car js-range))
+      'templ)
+     ((eq point (cdr js-range))
+      'templ)
+     (t 'javascript))))
 
 (defun templ-ts-setup ()
+  ""
   (interactive)
+
+  (treesit-parser-create 'javascript)
+  (treesit-parser-create 'go)
+  (treesit-parser-create 'templ)
+
+  (setq-local treesit-language-at-point-function #'templ-ts--treesit-language-at-point)
+
   (setq-local treesit-font-lock-feature-list
               '((comment definition error todo
                 keyword string type
-                constant escape-sequence label number tag attribute
-                bracket delimiter function operator property variable)))
+                assignment constant escape-sequence jsx label number tag attribute pattern string-interpolation
+                bracket delimiter function operator property variable css-selector)))
 
   (setq-local treesit-font-lock-settings
-              (append go-ts-mode--font-lock-settings
-                      (apply #'treesit-font-lock-rules
-                             templ-ts--templ-font-lock-rules)))
+              (let* ((root-rules (append templ-ts--templ-font-lock-rules
+                                         templ-ts--go-font-lock-rules))
+                     (root-compiled (apply #'treesit-font-lock-rules root-rules))
+                     (js-compiled js--treesit-font-lock-settings))
+                (append js-compiled root-compiled)))
 
   (setq-local treesit-simple-indent-rules templ-ts--indent-rules)
 
   (setq-local treesit-range-settings
-              (apply #'treesit-range-rules templ-ts--range-rules))
+              (treesit-range-rules
+
+               :embed 'javascript
+               :host 'templ
+               '((script_block_text) @js)
+               ))
 
   (treesit-major-mode-setup))
 
@@ -267,8 +211,9 @@ Intended for use in a seq-reduction."
 
 (define-derived-mode templ-ts-mode go-ts-mode "Templ"
   "Major mode for editing Templ files."
-  (when (treesit-ready-p 'templ)
-    (treesit-parser-create 'templ)
+  (when (and (treesit-ready-p 'templ)
+             (treesit-ready-p 'go)
+             (treesit-ready-p 'javascript))
     (templ-ts-setup)))
 
 (defun ultravomit ()
@@ -346,7 +291,7 @@ Intended for use in a seq-reduction."
           (overlays nil))
       (dolist (range ranges)
         (let ((overlay (make-overlay (car range) (cdr range))))
-          (overlay-put overlay 'face '(:background "#330000"))
+          (overlay-put overlay 'face '(:background "#110022"))
           (push overlay overlays)))
       (dolist (overlay (plist-get ultravomit-parser-overlays language))
         (delete-overlay overlay))

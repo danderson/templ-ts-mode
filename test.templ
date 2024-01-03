@@ -6,15 +6,15 @@ import "github.com/gosimple/slug"
 const duck = false
 
 const (
-  a = iota
-  b
-  c
+	a = iota
+	b
+	c
 )
 
 // Can one tell apart function comments?
 func test(foo string, bar int) bool {
-  print("foo\nbar\n")
-  return 42
+	print("foo\nbar\n")
+	return 42
 }
 
 var (
@@ -22,54 +22,61 @@ var (
 )
 
 type Blah struct {
-  Foo int
+	Foo int
 }
 
 func (b *Blah) Do() bool {
-  test("foo", 42)
-  foo, bar := bar
-  return true
+	test("foo", 42)
+	foo, bar := bar
+	return true
 }
 
 func other() {
-  Blah.Do()
-  Blah.foo.Do(honk)
-  x = func(foo int, bar string) bool { return 5 }
+	Blah.Do()
+	Blah.foo.Do(honk)
+	x = func(foo int, bar string) bool { return 5 }
 }
 
 css what() {
-  foo: bar;
-  baz: quux;
+	foo: bar;
+	baz: quux;
 }
 
 css foo() {
-  bar: zot;
+	bar: zot;
+	quux: { what() };
 }
 
 script test() {
-	const foo = bar();
+	const foo = bar() + baz();
+	if foo {
+		bar
+	}
+	foo();
 }
 
 // The header component
 templ headerComponent(title string) {
-  <head>
-    <title foo="bar" baz=42 test={one()}>
-      <foo/>
-      { title }
-    </title>
-    <fuck />
-    <conditional
-      if true {
-        class="what" test=42
-      }
-    />
-    <embed
-      if false {
-        attrs...
-      }
-    />
-    @component(foo, bar)
-  </head>
+	<head>
+		<title foo="bar" baz=42
+						 test={one()}>
+			<foo/>
+			{ title(42, 1) }
+		</title>
+		<fuck />
+		<conditional
+		 if true {
+			 class="what" test=42
+		 }
+		 />
+		<test { attrs...} />
+		<embed
+		 if false {
+			 { attrs... }
+		 }
+		 />
+		@component(foo, bar)
+	</head>
 }
 
 // comment
@@ -97,7 +104,7 @@ templ indexPage(posts []Post) {
 	<html>
 		@headerComponent("My Blog")
 		<body>
-			<h1>My Blog</h1>
+			<h1 foo="bar" baz="qux">My Blog</h1>
 			for _, post := range posts {
 				<div><a href={ templ.SafeURL(path.Join(post.Date.Format("2006/01/02"), slug.Make(post.Title), "/")) }>{ post.Title }</a></div>
 			}
