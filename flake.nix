@@ -20,14 +20,10 @@
         inherit system;
         pkgs = import nixpkgs { inherit system; };
       });
+  in {
+    packages = forAllSystems ({ system, pkgs }: rec {
+      default = templ-mode-emacs29;
 
-      templModeFor = emacsPkgs: emacsPkgs.trivialBuild {
-        pname = "templ-ts-mode";
-        version = "0";
-        src = ./.;
-      };
-  in rec {
-    packages = forAllSystems ({ system, pkgs }: {
       templ-grammar = pkgs.tree-sitter.buildGrammar {
         language = "tree-sitter-templ";
         version = "0.0";
@@ -39,9 +35,13 @@
         };
       };
 
-      templ-mode = templModeFor;
+      templ-mode = emacsPkgs: emacsPkgs.trivialBuild {
+        pname = "templ-ts-mode";
+        version = "0";
+        src = ./.;
+      };
 
-      templ-mode-emacs29 = templModeFor (pkgs.emacsPackagesFor pkgs.emacs29);
+      templ-mode-emacs29 = templ-mode (pkgs.emacsPackagesFor pkgs.emacs29);
     });
 
     devShell = forAllSystems ({ system, pkgs }:
