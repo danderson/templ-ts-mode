@@ -1,0 +1,108 @@
+{
+  "nodes": {
+    "flake-utils": {
+      "locked": {
+        "lastModified": 1667395993,
+        "narHash": "sha256-nuEHfE/LcWyuSWnS8t12N1wc105Qtau+/OdUAjtQ0rA=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "5aed5285a952e0b949eb3ba02c12fa4fcfef535f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "gitignore": {
+      "inputs": {
+        "nixpkgs": [
+          "templ",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1694102001,
+        "narHash": "sha256-vky6VPK1n1od6vXbqzOXnekrQpTL4hbPAwUhT5J9c9E=",
+        "owner": "hercules-ci",
+        "repo": "gitignore.nix",
+        "rev": "9e21c80adf67ebcb077d75bd5e7d724d21eeafd6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "gitignore.nix",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1704008649,
+        "narHash": "sha256-rGPSWjXTXTurQN9beuHdyJhB8O761w1Zc5BqSSmHvoM=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "d44d59d2b5bd694cd9d996fd8c51d03e3e9ba7f7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nixpkgs": "nixpkgs",
+        "templ": "templ"
+      }
+    },
+    "templ": {
+      "inputs": {
+        "gitignore": "gitignore",
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "xc": "xc"
+      },
+      "locked": {
+        "lastModified": 1704227027,
+        "narHash": "sha256-lRZaGtBwY9omC7Ge+rMWpVi4cUDxkTe/IaeAF+gL5JU=",
+        "owner": "a-h",
+        "repo": "templ",
+        "rev": "c674f647606fe180063d074ff12720ec1dd92350",
+        "type": "github"
+      },
+      "original": {
+        "owner": "a-h",
+        "repo": "templ",
+        "type": "github"
+      }
+    },
+    "xc": {
+      "inputs": {
+        "flake-utils": "flake-utils",
+        "nixpkgs": [
+          "templ",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1703164129,
+        "narHash": "sha256-kCcCqqwvjN07H8FPG4tXsRVRcMqT8dUNt9pwW1kKAe8=",
+        "owner": "joerdav",
+        "repo": "xc",
+        "rev": "0655cccfcf036556aeaddfb8f45dc7e8dd1b3680",
+        "type": "github"
+      },
+      "original": {
+        "owner": "joerdav",
+        "repo": "xc",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}

@@ -9,3 +9,9 @@
 
 # Undo-tree save-files
 *.~undo-tree
+
+# Tree-sitter subrepo
+/tree-sitter-templ
+
+# Nix testing
+/result
