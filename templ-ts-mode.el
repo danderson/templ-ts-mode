@@ -1,4 +1,4 @@
-;;; templ-ts-mode.el --- major mode for editing templ source in Emacs     -*- lexical-binding: t; -*-
+;;; templ-ts-mode.el --- major mode for editing Templ files     -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2024 David Anderson
 
