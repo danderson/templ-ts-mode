@@ -1,4 +1,4 @@
-;;; templ-mode.el --- major mode for editing templ source in Emacs     -*- lexical-binding: t; -*-
+;;; templ-ts-mode.el --- major mode for editing templ source in Emacs     -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2024 David Anderson
 
@@ -25,6 +25,7 @@
 ;;; Code:
 
 (require 'treesit)
+(eval-when-compile (require 'rx))
 
 (require 'go-ts-mode)
 (require 'js)
@@ -129,7 +130,7 @@
 (defvar templ-ts--templ-font-lock-rules
   ;; Unlike the previous var, these rules are specific to Templ's
   ;; syntax extensions.
-  `(:language templ
+  '(:language templ
     :feature keyword
     (["templ" "css" "script"] @font-lock-keyword-face)
 
@@ -164,8 +165,8 @@
                        name: (component_identifier) @font-lock-function-call-face))
 
     :language templ
-    :feature css-selector
-    ((css_property_name) @css-selector)))
+    :feature property
+    ((css_property_name) @css-property)))
 
 (defvar templ-ts--indent-rules
   `(;; Javascript used for script blocks that use the javascript
@@ -197,6 +198,12 @@
     :host templ
     '((script_block_text) @js)))
 
+(defvar templ-ts--font-lock-feature-list
+  '((comment definition)
+    (keyword string type)
+    (constant escape-sequence label number assignment jsx pattern string-interpolation tag attribute)
+    (bracket delimiter error function operator property variable)))
+
 (defun templ-ts--treesit-language-at-point (point)
   "Return the language at POINT."
   (let* ((js (treesit-parser-create 'javascript))
@@ -213,38 +220,48 @@
 (defun templ-ts--setup ()
   "Setup for `templ-ts-mode`."
   (treesit-parser-create 'javascript)
-  (treesit-parser-create 'go)
   (treesit-parser-create 'templ)
 
+  ;; Comments.
+  (setq-local comment-start "// "
+              comment-end ""
+              comment-start-skip (rx "//" (* (syntax whitespace))))
+
+  ;; Child language handling.
   (setq-local treesit-language-at-point-function
               #'templ-ts--treesit-language-at-point)
 
+  (setq-local treesit-range-settings
+              (apply #'treesit-range-rules
+                     templ-ts--range-rules))
+
+  ;; Indent.
+  (setq-local treesit-simple-indent-rules
+              templ-ts--indent-rules)
+
+  ;; Electric
+  (setq-local electric-indent-chars
+              (append "{}()<>" electric-indent-chars))
+
+  ;; Font-lock.
   (setq-local treesit-font-lock-feature-list
-              '((comment definition error todo)
-                (keyword string type)
-                (assignment constant escape-sequence jsx label number tag attribute pattern string-interpolation)
-                (bracket delimiter function operator property variable css-selector)))
+              templ-ts--font-lock-feature-list)
 
   (setq-local treesit-font-lock-settings
               (let* ((root-rules (append templ-ts--templ-font-lock-rules
                                          templ-ts--go-font-lock-rules))
-                     (root-compiled (apply #'treesit-font-lock-rules root-rules))
+                     (root-compiled (apply #'treesit-font-lock-rules
+                                           root-rules))
                      (js-compiled js--treesit-font-lock-settings))
                 (append js-compiled root-compiled)))
 
-  (setq-local treesit-simple-indent-rules
-              templ-ts--indent-rules)
-
-  (setq-local treesit-range-settings
-              (apply #'treesit-range-rules templ-ts--range-rules))
-
   (treesit-major-mode-setup))
 
-(define-derived-mode templ-ts-mode go-ts-mode "Templ"
+(define-derived-mode templ-ts-mode prog-mode "Templ"
   "Major mode for editing Templ files."
   (when (and (treesit-ready-p 'templ)
-             (treesit-ready-p 'go)
              (treesit-ready-p 'javascript))
     (templ-ts--setup)))
 
-(provide 'templ-mode)
+(provide 'templ-ts-mode)
+;;; templ-ts-mode.el ends here
