@@ -42,6 +42,26 @@
 (require 'js)
 (require 'css-mode)
 
+(defgroup templ-ts nil
+  "Major mode for Templ, using Tree-Sitter."
+  :group 'languages
+  :link '(emacs-library-link :tag "Source" "templ-ts-mode.el")
+  :prefix "templ-ts-mode-")
+
+(defcustom templ-ts-mode-grammar "https://github.com/vrischmann/tree-sitter-templ"
+  "Configuration for downloading and installing the tree-sitter language grammar."
+  :type '(string)
+  :group 'templ-ts
+  :version "0.1")
+
+(defcustom templ-ts-mode-grammar-install 'prompt
+  "Automatic installation of the tree-sitter language grammar library."
+  :type '(choice (const :tag "Install automatically" auto)
+                 (const :tag "Prompt to install" prompt)
+                 (const :tag "Do not install" nil))
+  :group 'templ-ts
+  :version "0.1")
+
 (defvar templ-ts--go-font-lock-rules
   ;; Rules taken from go-ts-mode--font-lock-settings.  Unfortunately I
   ;; need to retarget these rules to :language templ, but go-ts-mode
@@ -230,6 +250,31 @@
 
 (defun templ-ts--setup ()
   "Setup for `templ-ts-mode`."
+  (unless (treesit-available-p)
+    (error "Tree-sitter is not available"))
+
+  (unless (treesit-language-available-p 'javascript)
+    (error "Tree-sitter for Javascript isn't available"))
+
+  ;; Grammar.
+  (setq-local treesit-language-source-alist
+              `((templ . (,templ-ts-mode-grammar))))
+
+  (when (and (not (treesit-language-available-p 'templ))
+             (pcase templ-ts-mode-grammar-install
+               ('auto t)
+               ('prompt
+                (let ((y-or-n-p-use-read-key t))
+                  (y-or-n-p
+                   (format "Tree-sitter grammar for Templ is missing.  Install from %s?"
+                           (car (alist-get 'templ treesit-language-source-alist))))))
+               (_ nil)))
+    (message "Installing the tree-sitter grammar for Templ")
+    (treesit-install-language-grammar 'templ))
+
+  (unless (treesit-language-available-p 'templ)
+    (error "Tree-sitter for Templ isn't available"))
+
   (treesit-parser-create 'javascript)
   (treesit-parser-create 'templ)
 
@@ -271,13 +316,12 @@
 ;;;###autoload
 (define-derived-mode templ-ts-mode prog-mode "Templ"
   "Major mode for editing Templ files."
-  (when (and (treesit-ready-p 'templ)
-             (treesit-ready-p 'javascript))
-    (templ-ts--setup)))
+  :group 'templ-ts
+
+  (templ-ts--setup))
 
 ;;;###autoload
-(if (and (treesit-ready-p 'templ) (treesit-ready-p 'javascript))
-    (add-to-list 'auto-mode-alist '("\\.templ\\'" . templ-ts-mode)))
+(add-to-list 'auto-mode-alist '("\\.templ\\'" . templ-ts-mode))
 
 ;; Debugging stuff
 

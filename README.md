@@ -4,11 +4,17 @@ Emacs major mode for editing [Templ](https://templ.guide) files.
 
 ## Installing
 
-You need to make the [Templ tree-sitter
-parser](https://github.com/vrischmann/tree-sitter-templ) available to
-your emacs installation, as well as the javascript parser. The latter
-is usually distributed alongside emacs in your distro, if js-ts-mode
-works then you're fine.
+templ-ts-mode requires two tree-sitter grammars: the Javascript
+grammar, which should have shipped with your Emacs installation; and
+the [Templ grammar](https://github.com/vrischmann/tree-sitter-templ),
+which probably hasn't.
+
+By default, if the Templ grammar is missing, templ-ts-mode will ask if
+you want to download and build it using Emacs' built-in
+`treesit-install-language-grammar` machinery. If you want to do this,
+you need to have git and a C compiler installed. There are Customize
+options to set the source repository for the grammar, and to either
+always or never install the grammar if it's missing.
 
 If you're a Nix/NixOS user, this repository is a flake that packages
 both the major mode and the tree-sitter grammar as a convenience,
@@ -26,13 +32,14 @@ The package automatically sets `templ-ts-mode` for `.templ`
 files. Currently, font-locking and indentation work, but Imenu and
 other creature comforts aren't done yet.
 
-templ-ts-mode does not define its own customization variables. Rather,
-it reuses settings from the languages that make up a Templ file:
+templ-ts-mode does not define its own customization variables for
+indentation. Instead, it piggybacks on the settings for the languages
+that make up a Templ file:
 
- - Set your preferred indentation for the Go-ish portions of the file
-   with `go-ts-mode-indent-offset`.
- - Set your preferred javascript indentation for `script` components
-   with `js-indent-level`.
+ - Go code and the basic skeleton of Templ files are indented
+   according to `go-ts-mode-indent-offset`.
+ - Javascript code in `script` functions is indented according to
+   `js-indent-level`.
 
 ### Known issues
 
