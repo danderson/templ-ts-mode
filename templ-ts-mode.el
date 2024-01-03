@@ -196,7 +196,7 @@
 (defvar templ-ts--range-rules
   '(:embed javascript
     :host templ
-    '((script_block_text) @js)))
+    ((script_block_text) @js)))
 
 (defvar templ-ts--font-lock-feature-list
   '((comment definition)
@@ -351,7 +351,8 @@
           (push overlay overlays)))
       (dolist (overlay (plist-get templ-ts--ultravomit-parser-overlays language))
         (delete-overlay overlay))
-      (setq-local ultravomit-parser-overlays (plist-put ultravomit-parser-overlays language overlays)))))
+      (setq-local templ-ts--ultravomit-parser-overlays
+                  (plist-put templ-ts--ultravomit-parser-overlays language overlays)))))
 
 (defun templ-ts--ultravomit-subparsers-clear ()
   "Undo the effect of templ-ts--ultravomit-subparsers."
@@ -359,7 +360,7 @@
     (dolist (language alist)
       (dolist (overlay (cadr language))
         (delete-overlay overlay))))
-  (setq-local ultravomit-parser-overlays nil))
+  (setq-local templ-ts--ultravomit-parser-overlays nil))
 
 (provide 'templ-ts-mode)
 ;;; templ-ts-mode.el ends here
