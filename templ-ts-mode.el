@@ -1,9 +1,15 @@
-;;; templ-ts-mode.el --- major mode for editing Templ files     -*- lexical-binding: t; -*-
+;;; templ-ts-mode.el --- major mode for editing Templ files -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2024 David Anderson
 
 ;; Author: David Anderson <dave@natulte.net>
-;; Keywords:
+;; Created: 2024-01-01
+;; Version: 0.1
+;; Keywords: languages
+;; Package-Requires: ((emacs "29.1"))
+;; URL: https://github.com/danderson/templ-ts-mode
+
+;; This file is not a part of GNU Emacs.
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -25,6 +31,7 @@
 ;;; Code:
 
 (require 'treesit)
+(eval-when-compile (require 'cl-lib))
 (eval-when-compile (require 'rx))
 
 (require 'go-ts-mode)
@@ -257,18 +264,15 @@
 
   (treesit-major-mode-setup))
 
-(defun templ-ts--all-parsers-available ()
-  "Report whether the parsers templ needs are all available."
-  (and (treesit-ready-p 'templ)
-       (treesit-ready-p 'javascript)))
-
 ;;;###autoload
 (define-derived-mode templ-ts-mode prog-mode "Templ"
   "Major mode for editing Templ files."
-  (when (templ-ts--all-parsers-available)
+  (when (and (treesit-ready-p 'templ)
+             (treesit-ready-p 'javascript))
     (templ-ts--setup)))
 
-(if (templ-ts--all-parsers-available)
+;;;###autoload
+(if (and (treesit-ready-p 'templ) (treesit-ready-p 'javascript))
     (add-to-list 'auto-mode-alist '("\\.templ\\'" . templ-ts-mode)))
 
 ;; Debugging stuff
@@ -303,8 +307,7 @@
     (bg 'font-lock-punctuation-face "#444444")
     (bg 'font-lock-bracket-face "#008888")
     (bg 'font-lock-delimiter-face "#aaaa00")
-    (bg 'font-lock-misc-punctuation-face "#ffd700")
-  ))
+    (bg 'font-lock-misc-punctuation-face "#ffd700")))
 
 (defun templ-ts--ultravomit-clear ()
   "Undo the effect of templ-ts--ultravomit."
@@ -333,9 +336,7 @@
           font-lock-punctuation-face
           font-lock-bracket-face
           font-lock-delimiter-face
-          font-lock-misc-punctuation-face
-          )
-        ))
+          font-lock-misc-punctuation-face)))
 
 (defvar templ-ts--ultravomit-parser-overlays nil)
 
