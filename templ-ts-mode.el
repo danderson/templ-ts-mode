@@ -41,6 +41,7 @@
 (require 'go-ts-mode)
 (require 'js)
 (require 'css-mode)
+(require 'sgml-mode)
 
 (defgroup templ-ts nil
   "Major mode for Templ, using Tree-Sitter."
@@ -220,9 +221,10 @@
      ((node-is "/>") parent-bol 1)
      ((node-is "tag_end") parent-bol 0)
      ((node-is "attribute") prev-sibling 0)
-     ((parent-is "element") parent-bol go-ts-mode-indent-offset)
-     ((parent-is "tag_start") parent-bol go-ts-mode-indent-offset)
-     ((parent-is "self_closing_tag") parent-bol go-ts-mode-indent-offset))))
+     ((parent-is "script_element") parent-bol 0)
+     ((parent-is "element") parent-bol sgml-basic-offset)
+     ((parent-is "tag_start") parent-bol sgml-basic-offset)
+     ((parent-is "self_closing_tag") parent-bol sgml-basic-offset))))
 
 (defvar templ-ts--range-rules
   '(:embed javascript
