@@ -237,16 +237,19 @@
 
 (defun templ-ts--treesit-language-at-point (point)
   "Return the language at POINT."
-  (let* ((js (treesit-parser-create 'javascript))
-         (js-range (treesit-parser-range-on js point)))
-    (cond
-     ((null js-range)
-      'templ)
-     ((eq point (car js-range))
-      'templ)
-     ((eq point (cdr js-range))
-      'templ)
-     (t 'javascript))))
+  (let ((js (treesit-parser-create 'javascript)))
+    (if (null (treesit-parser-included-ranges js))
+        'templ
+      (let ((js-range (treesit-parser-range-on js point)))
+        (message "%s" js-range)
+        (cond
+         ((null js-range)
+          'templ)
+         ((eq point (car js-range))
+          'templ)
+         ((eq point (cdr js-range))
+          'templ)
+         (t 'javascript))))))
 
 (defun templ-ts--setup ()
   "Setup for `templ-ts-mode`."
