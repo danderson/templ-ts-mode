@@ -4,7 +4,11 @@ Emacs major mode for editing [Templ](https://templ.guide) files.
 
 ## Installing
 
-templ-ts-mode requires two tree-sitter grammars: the Javascript
+templ-ts-mode is [available in
+MELPA](https://melpa.org/#/templ-ts-mode). Install it however you
+usually install your emacs packages from MELPA!
+
+The mode does require two tree-sitter grammars: the Javascript
 grammar, which should have shipped with your Emacs installation; and
 the [Templ grammar](https://github.com/vrischmann/tree-sitter-templ),
 which probably hasn't.
@@ -17,18 +21,13 @@ options to set the source repository for the grammar, and to either
 always or never install the grammar if it's missing.
 
 If you're a Nix/NixOS user, this repository is a flake that packages
-both the major mode and the tree-sitter grammar as a convenience,
-until nixpkgs starts carrying them upstream. I recommend using the
-[community emacs
+both the major mode and the tree-sitter grammar as a convenience. I
+recommend using the [community emacs
 overlay](https://github.com/nix-community/emacs-overlay) to manage
 your emacs configs, and you can peek at [my emacs nix
 configuration](https://github.com/danderson/homelab/blob/main/home/emacs2.nix)
 for an example of how to add the parser and major mode to your
 installation.
-
-templ-ts-mode is [pending addition to
-MELPA](https://github.com/danderson/templ-ts-mode/issues/1), in the
-meantime you need to install the mode by hand.
 
 ## Usage
 
