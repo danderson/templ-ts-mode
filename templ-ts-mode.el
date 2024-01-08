@@ -302,7 +302,7 @@
   (setq-local treesit-simple-indent-rules
               templ-ts--indent-rules)
 
-  ;; Electric
+  ;; Electric.
   (setq-local electric-indent-chars
               (append "{}()<>" electric-indent-chars))
 
