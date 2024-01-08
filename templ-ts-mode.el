@@ -246,7 +246,6 @@
     (if (null (treesit-parser-included-ranges js))
         'templ
       (let ((js-range (treesit-parser-range-on js point)))
-        (message "%s" js-range)
         (cond
          ((null js-range)
           'templ)
