@@ -38,6 +38,7 @@
 (eval-when-compile (require 'cl-lib))
 (eval-when-compile (require 'rx))
 
+(require 'eglot)
 (require 'go-ts-mode)
 (require 'js)
 (require 'css-mode)
@@ -326,6 +327,9 @@
   :group 'templ-ts
 
   (templ-ts--setup))
+
+(add-to-list 'eglot-server-programs '(templ-ts-mode
+                                      "templ" "lsp"))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.templ\\'" . templ-ts-mode))
