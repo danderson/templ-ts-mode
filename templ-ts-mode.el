@@ -42,7 +42,6 @@
 (require 'go-ts-mode)
 (require 'js)
 (require 'css-mode)
-(require 'sgml-mode)
 
 (defgroup templ-ts nil
   "Major mode for Templ, using Tree-Sitter."
@@ -219,13 +218,13 @@
      ((node-is "/>") parent-bol 1)
      ((node-is "tag_end") parent-bol 0)
      ((node-is "attribute") prev-sibling 0)
-     ((node-is "script_element_text") parent-bol sgml-basic-offset)
+     ((node-is "script_element_text") parent-bol go-ts-mode-indent-offset)
      ((parent-is "script_element") parent-bol 0)
-     ((node-is "style_element_text") parent-bol sgml-basic-offset)
+     ((node-is "style_element_text") parent-bol go-ts-mode-indent-offset)
      ((parent-is "style_element") parent-bol 0)
-     ((parent-is "element") parent-bol sgml-basic-offset)
-     ((parent-is "tag_start") parent-bol sgml-basic-offset)
-     ((parent-is "self_closing_tag") parent-bol sgml-basic-offset)
+     ((parent-is "element") parent-bol go-ts-mode-indent-offset)
+     ((parent-is "tag_start") parent-bol go-ts-mode-indent-offset)
+     ((parent-is "self_closing_tag") parent-bol go-ts-mode-indent-offset)
 
      ;; Steal all of Go's rules, which covers almost all of what Templ
      ;; needs. They need to get evaluated last because they end with a
@@ -302,8 +301,8 @@
                      templ-ts--range-rules))
 
   ;; Indent.
-  (setq-local treesit-simple-indent-rules
-              templ-ts--indent-rules)
+  (setq-local indent-tabs-mode t
+              treesit-simple-indent-rules templ-ts--indent-rules)
 
   ;; Electric.
   (setq-local electric-indent-chars
