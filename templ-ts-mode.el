@@ -207,9 +207,6 @@
     ,(car js--treesit-indent-rules)
     ;; Templ rules, for the rest of the file.
     (templ
-     ;; Steal all of Go's rules, which covers almost all of what Templ
-     ;; needs.
-     ,@(cdar go-ts-mode--indent-rules)
 
      ((parent-is "css_declaration") parent-bol go-ts-mode-indent-offset)
      ((parent-is "component_declaration") parent-bol go-ts-mode-indent-offset)
@@ -228,7 +225,12 @@
      ((parent-is "style_element") parent-bol 0)
      ((parent-is "element") parent-bol sgml-basic-offset)
      ((parent-is "tag_start") parent-bol sgml-basic-offset)
-     ((parent-is "self_closing_tag") parent-bol sgml-basic-offset))))
+     ((parent-is "self_closing_tag") parent-bol sgml-basic-offset)
+
+     ;; Steal all of Go's rules, which covers almost all of what Templ
+     ;; needs. They need to get evaluated last because they end with a
+     ;; no-node rule that would overrule all rules that come after.
+     ,@(cdar go-ts-mode--indent-rules))))
 
 (defvar templ-ts--range-rules
   '(:embed javascript
