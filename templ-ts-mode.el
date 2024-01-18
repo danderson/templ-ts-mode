@@ -231,10 +231,15 @@
      ;; no-node rule that would overrule all rules that come after.
      ,@(cdar go-ts-mode--indent-rules))))
 
+(defun templ-ts--treesit-update-ranges (start end)
+  "Update child parser ranges between START and END."
+  (ignore start end)
+  (let ((js-ranges (or (treesit-query-range 'templ '((script_block_text) @js))
+                       '((1 . 1)))))
+    (treesit-parser-set-included-ranges (treesit-parser-create 'javascript) js-ranges)))
+
 (defvar templ-ts--range-rules
-  '(:embed javascript
-    :host templ
-    ((script_block_text) @js)))
+  '(templ-ts--treesit-update-ranges))
 
 (defvar templ-ts--font-lock-feature-list
   '((comment definition)
