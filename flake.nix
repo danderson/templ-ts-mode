@@ -20,17 +20,19 @@
         inherit system;
         pkgs = import nixpkgs { inherit system; };
       });
+
+      grammarRev = "592faa3186ef857c92e4bd1c31d73c07a4a334db";
   in {
     packages = forAllSystems ({ system, pkgs }: rec {
       default = templ-mode-emacs29;
 
       templ-grammar = pkgs.tree-sitter.buildGrammar {
         language = "tree-sitter-templ";
-        version = "0.0";
+        version = grammarRev;
         src = pkgs.fetchFromGitHub {
           owner = "vrischmann";
           repo = "tree-sitter-templ";
-          rev = "592faa3186ef857c92e4bd1c31d73c07a4a334db";
+          rev = grammarRev;
           sha256 = "sha256-XX1+P8ibo8REYYZQaC47lneg/roralo+YiRwFNnARsQ=";
         };
       };
