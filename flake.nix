@@ -31,7 +31,7 @@
           owner = "vrischmann";
           repo = "tree-sitter-templ";
           rev = "592faa3186ef857c92e4bd1c31d73c07a4a334db";
-          sha256 = "";
+          sha256 = "sha256-XX1+P8ibo8REYYZQaC47lneg/roralo+YiRwFNnARsQ=";
         };
       };
 
