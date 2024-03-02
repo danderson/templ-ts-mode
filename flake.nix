@@ -30,8 +30,8 @@
         src = pkgs.fetchFromGitHub {
           owner = "vrischmann";
           repo = "tree-sitter-templ";
-          rev = "f5c56b4739ea3303d125f6b7363645af631b85a1";
-          sha256 = "sha256-FvjISUWLQJAQ20xTKlwXqqi+5FBKuCNMYI2JayGxObc=";
+          rev = "592faa3186ef857c92e4bd1c31d73c07a4a334db";
+          sha256 = "";
         };
       };
 
