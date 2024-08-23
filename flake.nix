@@ -2,9 +2,9 @@
   description = "Emacs major mode for editing Templ files";
 
   inputs = {
-    nixpkgs.url = github:NixOS/nixpkgs/nixpkgs-unstable;
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     templ = {
-      url = github:a-h/templ;
+      url = "github:a-h/templ";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
