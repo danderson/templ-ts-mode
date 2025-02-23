@@ -81,7 +81,9 @@
 
    :language 'templ
    :feature 'constant
-   `([(false) (nil) (true) (iota)] @font-lock-constant-face
+   `([(false) (nil) (true)] @font-lock-constant-face
+     ,@(when (go-ts-mode--iota-query-supported-p)
+         '((iota) @font-lock-constant-face))
      (const_declaration
       (const_spec name: (identifier) @font-lock-constant-face)))
 
@@ -91,11 +93,13 @@
 
    :language 'templ
    :feature 'definition
-   '((function_declaration
+   `((function_declaration
       name: (identifier) @font-lock-function-name-face)
      (method_declaration
       name: (field_identifier) @font-lock-function-name-face)
-     (method_spec
+     (,(if (go-ts-mode--method-elem-supported-p)
+           'method_elem
+         'method_spec)
       name: (field_identifier) @font-lock-function-name-face)
      (field_declaration
       name: (field_identifier) @font-lock-property-name-face)
