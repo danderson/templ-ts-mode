@@ -225,7 +225,7 @@
      ((node-is "script_element_text") parent-bol go-ts-mode-indent-offset)
      ((parent-is "script_element") parent-bol 0)
      ((node-is "style_element_text") parent-bol go-ts-mode-indent-offset)
-     ((parent-is "style_element") parent-bol 0)
+     ((parent-is "style_element") parent-bol go-ts-mode-indent-offset)
      ((parent-is "element") parent-bol go-ts-mode-indent-offset)
      ((parent-is "tag_start") parent-bol go-ts-mode-indent-offset)
      ((parent-is "self_closing_tag") parent-bol go-ts-mode-indent-offset)
