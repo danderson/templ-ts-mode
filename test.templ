@@ -47,34 +47,30 @@ css foo() {
 	quux: { what() };
 }
 
-script test() {
-	const foo = bar() + baz();
-	if foo {
-		bar
-	}
-	foo();
-}
-
 // The header component
 templ headerComponent(title string) {
 	<head>
-		<title foo="bar" baz=42
-						 test={one()}>
-			<foo/>
+		<title
+			foo="bar"
+			baz="42"
+			test={ one() }
+		>
+			<foo></foo>
 			{ title(42, 1) }
 		</title>
-		<what />
+		<what></what>
 		<conditional
-		 if true {
-			 class="what" test=42
-		 }
-		 />
-		<test { attrs...} />
+			if true {
+				class="what"
+				test="42"
+			}
+		></conditional>
+		<test { attrs... }></test>
 		<embed
-		 if false {
-			 { attrs... }
-		 }
-		 />
+			if false {
+				{ attrs... }
+			}
+		/>
 		@component(foo, bar)
 	</head>
 }
@@ -88,7 +84,7 @@ templ contentComponent(title string, body templ.Component) {
 	<body>
 		<h1>{ title }</h1>
 		<div class="content">
-			{! body }
+			@body
 		</div>
 	</body>
 }
